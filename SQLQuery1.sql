@@ -3,7 +3,15 @@ From Covid.dbo.CovidDeaths$
 Where continent is not null 
 order by 1,2
 
--- Total Cases vs Total Deaths
+-- Density of total cases
+Select iso_code, location, max(total_cases)/population AS percentPopulationInfected, population
+From Covid.dbo.CovidDeaths$
+Where iso_code Not Like "OWID%"
+Group by iso_code
+Order By percentPopulationInfected
+
+
+-- Total Cases vs Total Deaths (For Morocco)
 -- Shows likelihood of dying if you contract covid in your country
 
 Select Location, date, total_cases,total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
@@ -12,7 +20,7 @@ Where location = 'Morocco'
 and continent is not null 
 order by 1,2
 
--- Total Cases vs Population
+-- Total Cases vs Population (for Morocco)
 -- Shows what percentage of population infected with Covid
 
 Select Location, date, Population, total_cases,  (total_cases/population)*100 as PercentPopulationInfected
@@ -36,9 +44,9 @@ Group by Location
 order by TotalDeathCount desc
 
 
--- BREAKING THINGS DOWN BY CONTINENT
+-- Now By Continent
 
--- Showing contintents with the highest death count per population
+-- Contintents with the highest death count per population
 
 Select continent, MAX(cast(Total_deaths as bigint)) as TotalDeathCount
 From Covid.dbo.CovidDeaths$
@@ -72,6 +80,13 @@ Join Covid..CovidVaccinations$ vac
 	and dea.date = vac.date
 where dea.continent is not null 
 order by 2,3
+
+-- Likelyhood of vaccination
+
+SELECT dea.location, MAX(people_fully_vaccinated)/population * 100 AS FullyVaccinationPercent
+From Covid..CovidDeaths$ dea
+Join Covid..CovidVaccinations$ vac
+Order by FullyVaccinationPercent
 
 -- Total Population vs Vaccinations (Morocco)
 
